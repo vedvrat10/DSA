@@ -1,0 +1,109 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Structure to represent a student
+struct Student {
+    int rollNo;
+    string name;
+    float sgpa;
+};
+
+// Function to perform bubble sort on students array by roll number
+void bubbleSortByRollNo(Student students[], int size) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - i - 1; j++) {
+            if (students[j].rollNo > students[j + 1].rollNo) {
+                swap(students[j], students[j + 1]);
+            }
+        }
+    }
+}
+
+// Function to perform binary search on students array by name
+void binarySearchByName(Student students[], int size, string targetName) {
+    bool found = false;
+    int low = 0;
+    int high = size - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (students[mid].name == targetName) {
+            found = true;
+            // Print all records with the same name
+            while (mid >= 0 && students[mid].name == targetName) {
+                cout << "Roll No: " << students[mid].rollNo << ", Name: " << students[mid].name << ", SGPA: " << students[mid].sgpa << endl;
+                mid--;
+            }
+            mid = low + (high - low) / 2 + 1;
+            while (mid < size && students[mid].name == targetName) {
+                cout << "Roll No: " << students[mid].rollNo << ", Name: " << students[mid].name << ", SGPA: " << students[mid].sgpa << endl;
+                mid++;
+            }
+            break;
+        } else if (students[mid].name < targetName) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    if (!found) {
+        cout << "Student with name " << targetName << " not found." << endl;
+    }
+}
+
+// Function to partition array for quick sort
+int partition(Student students[], int low, int high) {
+    Student pivot = students[high];
+    int i = (low - 1);
+    for (int j = low; j <= high - 1; j++) {
+        if (students[j].sgpa >= pivot.sgpa) {
+            i++;
+            swap(students[i], students[j]);
+        }
+    }
+    swap(students[i + 1], students[high]);
+    return (i + 1);
+}
+
+// Function to perform quick sort on students array by SGPA
+void quickSortBySGPA(Student students[], int low, int high) {
+    if (low < high) {
+        int pi = partition(students, low, high);
+        quickSortBySGPA(students, low, pi - 1);
+        quickSortBySGPA(students, pi + 1, high);
+    }
+}
+
+int main() {
+    // Sample student records
+    const int numStudents = 5;
+    Student students[numStudents] = {
+        {105, "John", 3.5},
+        {102, "Emma", 3.8},
+        {101, "Mike", 3.5},
+        {103, "Sophia", 4.0},
+        {104, "Liam", 3.7}
+    };
+
+    // A) Arrange list of students according to roll numbers in ascending order using bubble sort
+    bubbleSortByRollNo(students, numStudents);
+    cout << "Roll Call List:" << endl;
+    for (int i = 0; i < numStudents; ++i) {
+        cout << "Roll No: " << students[i].rollNo << ", Name: " << students[i].name << ", SGPA: " << students[i].sgpa << endl;
+    }
+
+    // B) Search a particular student according to name using binary search
+    string searchName = "Mike";
+    cout << "Search Results for " << searchName << ":" << endl;
+    binarySearchByName(students, numStudents, searchName);
+
+    // C) Arrange list of students to find out first ten toppers from a class using quick sort
+    quickSortBySGPA(students, 0, numStudents - 1);
+    cout << "Top ten students by SGPA:" << endl;
+    int count = min(numStudents, 10);
+    for (int i = 0; i < count; ++i) {
+        cout << "Roll No: " << students[i].rollNo << ", Name: " << students[i].name << ", SGPA: " << students[i].sgpa << endl;
+    }
+
+    return 0;
+}
