@@ -1,0 +1,92 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Structure to represent a student
+struct Student {
+    int rollNo;
+    string name;
+    float sgpa;
+};
+
+// Function to search students by SGPA
+void searchBySGPA(Student students[], int size, float targetSGPA) {
+    bool found = false;
+    cout << "Students with SGPA " << targetSGPA << ":" << endl;
+    for (int i = 0; i < size; ++i) {
+        if (students[i].sgpa == targetSGPA) {
+            found = true;
+            cout << "Roll No: " << students[i].rollNo << ", Name: " << students[i].name << ", SGPA: " << students[i].sgpa << endl;
+        }
+    }
+    if (!found)
+        cout << "No students found with SGPA " << targetSGPA << endl;
+}
+
+// Function to perform insertion sort on students array alphabetically by name
+void insertionSortByName(Student students[], int size) {
+    for (int i = 1; i < size; ++i) {
+        Student key = students[i];
+        int j = i - 1;
+        while (j >= 0 && students[j].name > key.name) {
+            students[j + 1] = students[j];
+            j = j - 1;
+        }
+        students[j + 1] = key;
+    }
+}
+
+// Function to partition array for quick sort
+int partition(Student students[], int low, int high) {
+    Student pivot = students[high];
+    int i = (low - 1);
+    for (int j = low; j <= high - 1; j++) {
+        if (students[j].sgpa >= pivot.sgpa) {
+            i++;
+            swap(students[i], students[j]);
+        }
+    }
+    swap(students[i + 1], students[high]);
+    return (i + 1);
+}
+
+// Function to perform quick sort on students array by SGPA
+void quickSortBySGPA(Student students[], int low, int high) {
+    if (low < high) {
+        int pi = partition(students, low, high);
+        quickSortBySGPA(students, low, pi - 1);
+        quickSortBySGPA(students, pi + 1, high);
+    }
+}
+
+int main() {
+    // Sample student records
+    const int numStudents = 5;
+    Student students[numStudents] = {
+        {101, "John", 3.5},
+        {102, "Emma", 3.8},
+        {103, "Mike", 3.5},
+        {104, "Sophia", 4.0},
+        {105, "Liam", 3.7}
+    };
+
+    // A) Search students by SGPA
+    searchBySGPA(students, numStudents, 3.5);
+
+    // B) Arrange students alphabetically by name
+    insertionSortByName(students, numStudents);
+    cout << "Students sorted alphabetically by name:" << endl;
+    for (int i = 0; i < numStudents; ++i) {
+        cout << "Roll No: " << students[i].rollNo << ", Name: " << students[i].name << ", SGPA: " << students[i].sgpa << endl;
+    }
+
+    // C) Arrange list of students to find out first ten toppers from a class using quick sort
+    quickSortBySGPA(students, 0, numStudents - 1);
+    cout << "Top ten students by SGPA:" << endl;
+    int count = min(numStudents, 10);
+    for (int i = 0; i < count; ++i) {
+        cout << "Roll No: " << students[i].rollNo << ", Name: " << students[i].name << ", SGPA: " << students[i].sgpa << endl;
+    }
+
+    return 0;
+}
