@@ -1,0 +1,118 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+// Structure to represent a student
+struct Student {
+    int rollNo;
+    string name;
+    string division;
+    string address;
+};
+
+// Function to add a student record to the file
+void addStudentRecord(ofstream& file) {
+    Student student;
+    cout << "Enter Roll No: ";
+    cin >> student.rollNo;
+    cout << "Enter Name: ";
+    cin.ignore();
+    getline(cin, student.name);
+    cout << "Enter Division: ";
+    getline(cin, student.division);
+    cout << "Enter Address: ";
+    getline(cin, student.address);
+
+    file.write(reinterpret_cast<const char*>(&student), sizeof(Student));
+    cout << "Student record added successfully." << endl;
+}
+
+// Function to display information of a particular student
+void displayStudentRecord(ifstream& file, int rollNo) {
+    Student student;
+    bool found = false;
+    while (file.read(reinterpret_cast<char*>(&student), sizeof(Student))) {
+        if (student.rollNo == rollNo) {
+            found = true;
+            cout << "Roll No: " << student.rollNo << endl;
+            cout << "Name: " << student.name << endl;
+            cout << "Division: " << student.division << endl;
+            cout << "Address: " << student.address << endl;
+            break;
+        }
+    }
+    if (!found) {
+        cout << "Student record with Roll No " << rollNo << " not found." << endl;
+    }
+}
+
+// Function to delete information of a particular student
+void deleteStudentRecord(ifstream& file, ofstream& tempFile, int rollNo) {
+    Student student;
+    bool found = false;
+    while (file.read(reinterpret_cast<char*>(&student), sizeof(Student))) {
+        if (student.rollNo != rollNo) {
+            tempFile.write(reinterpret_cast<const char*>(&student), sizeof(Student));
+        } else {
+            found = true;
+        }
+    }
+    file.close();
+    tempFile.close();
+    remove("students.dat");
+    rename("temp.dat", "students.dat");
+    if (found) {
+        cout << "Student record with Roll No " << rollNo << " deleted successfully." << endl;
+    } else {
+        cout << "Student record with Roll No " << rollNo << " not found." << endl;
+    }
+}
+
+int main() {
+    ofstream file("students.dat", ios::binary | ios::app);
+    if (!file) {
+        cerr << "Error opening file." << endl;
+        return 1;
+    }
+
+    int choice, rollNo;
+    do {
+        cout << "\n1. Add Student Record" << endl;
+        cout << "2. Display Student Record" << endl;
+        cout << "3. Delete Student Record" << endl;
+        cout << "4. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                addStudentRecord(file);
+                break;
+            case 2:
+                cout << "Enter Roll No to display: ";
+                cin >> rollNo;
+                displayStudentRecord(file, rollNo);
+                break;
+            case 3:
+                cout << "Enter Roll No to delete: ";
+                cin >> rollNo;
+                ifstream readFile("students.dat", ios::binary);
+                ofstream tempFile("temp.dat", ios::binary);
+                if (!readFile || !tempFile) {
+                    cerr << "Error opening file." << endl;
+                    return 1;
+                }
+                deleteStudentRecord(readFile, tempFile, rollNo);
+                break;
+            case 4:
+                cout << "Exiting program." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please enter a valid option." << endl;
+        }
+    } while (choice != 4);
+
+    file.close();
+    return 0;
+}
